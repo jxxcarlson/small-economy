@@ -9,11 +9,11 @@ main =
   game view update initialState
 
 view computer state =
-  visualize state
+  visualize computer state
 
-visualize : State -> List Shape
-visualize state =
-  List.map datumToShape state.data
+visualize : Computer -> State -> List Shape
+visualize computer state =
+ rectangle black computer.screen.width computer.screen.height ::  (List.map datumToShape state.data) 
 
 datumToShape : Datum -> Shape
 datumToShape datum =
