@@ -13,7 +13,14 @@ view computer state =
 
 visualize : Computer -> State -> List Shape
 visualize computer state =
- rectangle black computer.screen.width computer.screen.height ::  (List.map datumToShape state.data) 
+    let
+         message : Shape
+         message = words red ("t = " ++ String.fromInt state.t)
+            |> moveX (computer.screen.width / 2 - 50)
+            |> moveY (computer.screen.height/2 - 20)
+
+     in
+        rectangle black computer.screen.width computer.screen.height ::  message :: (List.map datumToShape state.data)
 
 datumToShape : Datum -> Shape
 datumToShape datum =
