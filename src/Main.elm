@@ -2,6 +2,7 @@ module Main exposing(main)
 
 import Playground exposing (..)
 import Random
+import Set
 
 
 
@@ -14,13 +15,18 @@ view computer state =
 visualize : Computer -> State -> List Shape
 visualize computer state =
     let
+         blackScreen = rectangle black computer.screen.width computer.screen.height
+
          message : Shape
          message = words red ("t = " ++ String.fromInt state.t)
             |> moveX (computer.screen.width / 2 - 50)
             |> moveY (computer.screen.height/2 - 20)
 
+         sun : Shape
+         sun = circle yellow 30.0
+
      in
-        rectangle black computer.screen.width computer.screen.height ::  message :: (List.map datumToShape state.data)
+        blackScreen ::  sun :: message :: (List.map datumToShape state.data)
 
 datumToShape : Datum -> Shape
 datumToShape datum =
@@ -49,11 +55,30 @@ update computer state =
 
             newDatum : Datum
             newDatum =
-              { x = x, y = y, colorPhase = colorPhase, alpha = alpha }
+                if computer.keyboard.keys == Set.singleton "r" then
+                   let
+                       _ = Debug.log "(x,y)" (computer.mouse.x  , computer.mouse.y )
+                   in
+                   --{ x = computer.mouse.x/3 , y = -(computer.mouse.y /3), colorPhase = colorPhase, alpha = alpha }
+                   { x = 0 , y = 0, colorPhase = 1, alpha = alpha }
 
-            _ = Debug.log "@(x_y_t)" (x, y, state.t + 1)
+                else if computer.keyboard.keys == Set.singleton "b" then
+                    let
+                        _ = Debug.log "(x,y)" (computer.mouse.x  , computer.mouse.y )
+                    in
+                    --{ x = computer.mouse.x/3 , y = -(computer.mouse.y /3), colorPhase = colorPhase, alpha = alpha }
+                    { x = 0 , y = 0, colorPhase = 0, alpha = alpha }
+
+                else if computer.keyboard.keys == Set.singleton "0" then
+                    let
+                        _ = Debug.log "(x,y)" (computer.mouse.x  , computer.mouse.y )
+                    in
+                    --{ x = computer.mouse.x/3 , y = -(computer.mouse.y /3), colorPhase = colorPhase, alpha = alpha }
+                    { x = 0 , y = 0, colorPhase = 0.5, alpha = alpha }
+                else
+                  { x = x, y = y, colorPhase = colorPhase, alpha = alpha }
           in
-           { state | seed = newSeed , data = newDatum :: state.data , t = state.t + 1 |> Debug.log "@T"}
+           { state | seed = newSeed , data = newDatum :: state.data , t = state.t + 1 }
 
 
 type alias State = {
