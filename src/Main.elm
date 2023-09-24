@@ -22,7 +22,7 @@ initialState config =
 
 view : Computer -> State -> List Shape
 view computer state =
-    visualize computer state
+    blackScreen computer :: [ visualize computer state ]
 
 
 
@@ -49,12 +49,13 @@ config1 =
     }
 
 
-visualize : Computer -> State -> List Shape
+blackScreen computer =
+    rectangle black computer.screen.width computer.screen.height
+
+
+visualize : Computer -> State -> Shape
 visualize computer state =
     let
-        blackScreen =
-            rectangle black computer.screen.width computer.screen.height
-
         boundingBox =
             rectangle (rgb 30 30 60) (config1.gridSize + 20) (config1.gridSize + 20)
 
@@ -182,8 +183,7 @@ visualize computer state =
                 --|> moveX 40
                 |> moveY (-config1.gridSize / 2 - 90)
     in
-    blackScreen
-        :: boundingBox
+    boundingBox
         :: message1
         :: message2
         :: message2a
@@ -208,6 +208,8 @@ visualize computer state =
         :: messageC8
         :: messageC9
         :: List.indexedMap (personToShape config1.gridSize) state.people
+        |> group
+        |> moveY 40
 
 
 personToShape : Float -> Int -> Model.Person -> Shape
