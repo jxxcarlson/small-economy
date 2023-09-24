@@ -17,7 +17,7 @@ main =
 
 initialState : Config -> State
 initialState config =
-    Model.initialState config.seedInteger config.populationSize config.gridSize config.initialCapital 0.5
+    Model.initialState config.seedInteger config.populationSize config.gridSize config.initialCapital config.transactionAmount
 
 
 view : Computer -> State -> List Shape
@@ -32,6 +32,7 @@ view computer state =
 type alias Config =
     { seedInteger : Int
     , populationSize : Int
+    , transactionAmount : Float
     , gridSize : Float
     , radius : Float
     , initialCapital : Float
@@ -42,6 +43,7 @@ config1 =
     { seedInteger = 12345
     , populationSize = 200
     , initialCapital = 20
+    , transactionAmount = 1.0
     , gridSize = 500
     , radius = 1.0
     }
@@ -68,7 +70,7 @@ visualize computer state =
                 |> moveY (computer.screen.height / 2 - 50)
 
         message2a =
-            words red ("transaction = $" ++ (0.5 |> Model.roundAt2 2))
+            words red ("transaction = $" ++ (state.transactionAmount |> Model.roundAt2 2))
                 |> moveX (computer.screen.width / 2 - 80)
                 |> moveY (computer.screen.height / 2 - 80)
 
