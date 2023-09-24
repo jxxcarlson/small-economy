@@ -1,13 +1,16 @@
 module Model exposing
     ( Person
     , State
+    , average
     , config
     , initialState
     , listCapital
+    , maxCapital
     , nextState
-    , runN
-    , runN2
-    , runN3
+    , quintiles
+    , roundAt
+    , roundAt2
+    , slice
     )
 
 import List.Extra
@@ -16,7 +19,7 @@ import Random
 import Random.Seeded
 
 
-runN3 : Int -> State -> ( Maybe Int, Maybe Int, Maybe (List ( Int, Int )) )
+runN3 : Int -> State -> ( Maybe Float, Maybe Float, Maybe (List ( Int, Float )) )
 runN3 n state =
     let
         capitalList =
@@ -25,36 +28,35 @@ runN3 n state =
         totalCapital =
             capitalList |> List.map (List.map Tuple.second) |> List.map List.sum
 
-        -- maxCapital : List (Maybe Int)
-        maxCapital =
+        maxCapital3 =
             capitalList
                 |> List.map (List.map Tuple.second)
                 |> List.map List.maximum
                 |> Maybe.Extra.values
     in
-    ( List.head totalCapital, List.head maxCapital, List.head capitalList )
+    ( List.head totalCapital
+    , List.head maxCapital3
+    , List.head capitalList
+        |> Maybe.map (List.sortBy Tuple.second)
+        |> Maybe.map List.reverse
+    )
+
+
+maxCapital : State -> Float
+maxCapital state =
+    let
+        capitalList : List ( Int, Float )
+        capitalList =
+            state |> (.people >> listCapital)
+    in
+    capitalList
+        |> List.map Tuple.second
+        |> List.maximum
+        |> Maybe.withDefault -1
 
 
 
 -- runN2 : Int -> State -> ( List Float, List (List ( Int, Float )) )
-
-
-runN2 n state =
-    let
-        capitalList =
-            runN n state |> List.map (.people >> listCapital)
-
-        totalCapital =
-            capitalList |> List.map (List.map Tuple.second) |> List.map List.sum
-
-        data =
-            List.map2 (\x y -> ( x, y )) totalCapital capitalList
-    in
-    List.indexedMap (\k v -> Debug.log (String.fromInt k) v) (List.reverse data)
-
-
-
--- |> List.head
 
 
 runN : Int -> State -> List State
@@ -78,7 +80,8 @@ runN n state =
 type alias State =
     { seed : Random.Seed
     , people : List Person
-    , transactionAmount : Int
+    , transactionAmount : Float
+    , t : Int
     }
 
 
@@ -111,10 +114,14 @@ nextState state =
                 _ ->
                     people
     in
-    { state | seed = seed, people = updatePeople state.people i j }
+    { state
+        | seed = seed
+        , people = updatePeople state.people i j
+        , t = state.t + 1
+    }
 
 
-initialState : Random.Seed -> Int -> Float -> Int -> State
+initialState : Random.Seed -> Int -> Float -> Float -> State
 initialState seed populationSize gridSize initialCapital =
     let
         ( newSeed, people ) =
@@ -122,7 +129,8 @@ initialState seed populationSize gridSize initialCapital =
     in
     { seed = newSeed
     , people = people
-    , transactionAmount = 1
+    , transactionAmount = 0.5
+    , t = 0
     }
 
 
@@ -145,11 +153,11 @@ type alias Person =
     { id : Int
     , x : Float
     , y : Float
-    , capital : Int
+    , capital : Float
     }
 
 
-initPerson : Int -> ( Float, Float ) -> Int -> Person
+initPerson : Int -> ( Float, Float ) -> Float -> Person
 initPerson id ( x, y ) capital =
     { id = id
     , x = x
@@ -158,7 +166,7 @@ initPerson id ( x, y ) capital =
     }
 
 
-listCapital : List Person -> List ( Int, Int )
+listCapital : List Person -> List ( Int, Float )
 listCapital people =
     List.map (\p -> ( p.id, p.capital )) people
 
@@ -172,7 +180,22 @@ roundAt n f =
     toFloat (round (f * factor)) / factor
 
 
-initPeople : Random.Seed -> Int -> Float -> Int -> ( Random.Seed, List Person )
+roundAt2 : Int -> Float -> String
+roundAt2 n f =
+    let
+        factor =
+            10 ^ n |> toFloat
+
+        intPart =
+            truncate f |> toFloat
+
+        fracPart =
+            (f - intPart) * factor |> roundAt n |> truncate
+    in
+    String.fromFloat intPart ++ "." ++ String.fromInt fracPart
+
+
+initPeople : Random.Seed -> Int -> Float -> Float -> ( Random.Seed, List Person )
 initPeople seed populationSize gridSize capital =
     let
         result =
@@ -181,6 +204,58 @@ initPeople seed populationSize gridSize capital =
     ( result.seed, initPeople_ capital result.pairs )
 
 
-initPeople_ : Int -> List ( Float, Float ) -> List Person
+initPeople_ : Float -> List ( Float, Float ) -> List Person
 initPeople_ capital positions =
     List.indexedMap (\k p -> initPerson k p capital) positions
+
+
+slice : Float -> Float -> List Float -> List Float
+slice fraction1 fraction2 xs =
+    let
+        sorted =
+            List.sort xs
+
+        n =
+            List.length sorted
+
+        m1 =
+            fraction1 * toFloat n |> truncate
+
+        m2 =
+            fraction2 * toFloat n |> round
+    in
+    sorted |> List.take m2 |> List.drop m1
+
+
+quintiles : List Float -> { quintile1 : Float, quintile2 : Float, quintile3 : Float, quintile4 : Float, quintile5 : Float }
+quintiles xs =
+    let
+        sorted =
+            List.sort xs
+
+        n =
+            List.length sorted
+
+        m1 =
+            0.2 * toFloat n |> truncate
+
+        m2 =
+            0.4 * toFloat n |> round
+
+        m3 =
+            0.6 * toFloat n |> round
+
+        m4 =
+            0.8 * toFloat n |> round
+    in
+    { quintile1 = sorted |> List.take m1 |> average
+    , quintile2 = sorted |> List.drop m1 |> List.take (m2 - m1) |> average
+    , quintile3 = sorted |> List.drop m2 |> List.take (m3 - m2) |> average
+    , quintile4 = sorted |> List.drop m3 |> List.take (m4 - m3) |> average
+    , quintile5 = sorted |> List.drop m4 |> List.take (n - m4) |> average
+    }
+
+
+average : List Float -> Float
+average xs =
+    List.sum xs / toFloat (List.length xs)

@@ -1,23 +1,40 @@
 module Main exposing (..)
 
+import Model exposing (State)
 import Playground exposing (..)
 import Random
 import Set
 
 
 main =
-    game view update initialState
+    game view update (initialState config1)
 
 
+initialState : Config -> State
+initialState config =
+    Model.initialState (Random.initialSeed config.seed) config.populationSize config.gridSize config.initialCapital
+
+
+view : Computer -> State -> List Shape
 view computer state =
     visualize computer state
 
 
-config =
-    { deltaAlpha = 0.05
-    , deltaColor = 0.05
-    , deltaXY = 2.0
-    , radius = 3.0
+type alias Config =
+    { seed : Int
+    , populationSize : Int
+    , gridSize : Float
+    , radius : Float
+    , initialCapital : Float
+    }
+
+
+config1 =
+    { seed = 1234
+    , populationSize = 200
+    , initialCapital = 20
+    , gridSize = 500
+    , radius = 1.0
     }
 
 
@@ -27,158 +44,87 @@ visualize computer state =
         blackScreen =
             rectangle black computer.screen.width computer.screen.height
 
-        message : Shape
-        message =
+        boundingBox =
+            rectangle (rgb 30 30 60) (config1.gridSize + 20) (config1.gridSize + 20)
+
+        message1 : Shape
+        message1 =
             words red ("t = " ++ String.fromInt state.t)
                 |> moveX (computer.screen.width / 2 - 50)
                 |> moveY (computer.screen.height / 2 - 20)
 
-        message2 : Shape
         message2 =
-            words red ("(" ++ x ++ ", " ++ y ++ ")")
-                |> moveX (computer.screen.width / 2 - 50)
-                |> moveY (computer.screen.height / 2 - 40)
+            words red ("initial Capital = " ++ (config1.initialCapital |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 85)
+                |> moveY (computer.screen.height / 2 - 50)
 
-        x =
-            Maybe.map .x (List.head state.data) |> Maybe.withDefault 0 |> round |> String.fromInt
+        message3 =
+            words red ("max Capital = " ++ (Model.maxCapital state |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 80)
+                |> moveY (computer.screen.height / 2 - 70)
 
-        y =
-            Maybe.map .y (List.head state.data) |> Maybe.withDefault 0 |> round |> String.fromInt
+        message4 =
+            words red ("quintile 5 = " ++ (quintiles.quintile5 |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 71)
+                |> moveY (computer.screen.height / 2 - 100)
 
-        sun : Shape
-        sun =
-            circle white 3.0
+        message5 =
+            words red ("quintile 4 = " ++ (quintiles.quintile4 |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 71)
+                |> moveY (computer.screen.height / 2 - 120)
+
+        message6 =
+            words red ("quintile 3 = " ++ (quintiles.quintile2 |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 71)
+                |> moveY (computer.screen.height / 2 - 140)
+
+        message7 =
+            words red ("quintile 2 = " ++ (quintiles.quintile2 |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 71)
+                |> moveY (computer.screen.height / 2 - 160)
+
+        message8 =
+            words red ("quintile 1 = " ++ (quintiles.quintile1 |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 71)
+                |> moveY (computer.screen.height / 2 - 180)
+
+        quintiles =
+            Model.quintiles (state.people |> List.map .capital)
     in
-    blackScreen :: sun :: message :: message2 :: List.indexedMap datumToShape state.data
+    blackScreen
+        :: boundingBox
+        :: message1
+        :: message2
+        :: message3
+        :: message4
+        :: message5
+        :: message6
+        :: message7
+        :: message8
+        :: List.indexedMap (personToShape config1.gridSize) state.people
 
 
-datumToShape : Int -> Datum -> Shape
-datumToShape index datum =
+personToShape : Float -> Int -> Model.Person -> Shape
+personToShape gridSize index person =
     let
         dx =
-            scaleObject * datum.x
+            scaleObject * person.x - gridSize / 2
 
         dy =
-            scaleObject * datum.y
+            scaleObject * person.y - gridSize / 2
 
-        r =
-            datum.colorPhase * 255
-
-        b =
-            255 * (1 - datum.colorPhase)
-
-        c =
-            if index == 0 then
-                white
-
-            else
-                rgb r 0 b
-
-        alpha_ =
-            if index == 0 then
-                1
-
-            else
-                datum.alpha
+        c2 =
+            Playground.blue
 
         scaleObject =
-            4.5
+            1
+
+        radius =
+            person.capital ^ 2.5 / 850
     in
-    circle c config.radius |> moveX dx |> moveY dy |> fade alpha_
+    circle c2 radius |> moveX dx |> moveY dy
 
 
 update : Computer -> State -> State
 update computer state =
-    case List.head state.data of
-        Nothing ->
-            state
-
-        Just firstDatum ->
-            let
-                ( delta, newSeed ) =
-                    newDelta state.seed
-
-                x =
-                    --firstDatum.x + delta.dx |> bounce 2 20 computer.screen.left computer.screen.right
-                    firstDatum.x + delta.dx |> bounce 2 20 -150 150
-
-                y =
-                    --firstDatum.y + delta.dy |> bounce 2 20 computer.screen.bottom computer.screen.top
-                    firstDatum.y + delta.dy |> bounce 2 20 -100 100
-
-                colorPhase =
-                    firstDatum.colorPhase + delta.dColor |> bounce 0.01 0.05 0 1
-
-                alpha =
-                    --firstDatum.alpha + delta.dAlpha |> wrap 0.01 0 0.2
-                    firstDatum.alpha + delta.dAlpha |> bounce 0.01 0.05 0.2 0.3
-
-                newDatum : Datum
-                newDatum =
-                    if computer.keyboard.keys == Set.singleton "r" then
-                        { x = 0, y = 0, colorPhase = 1, alpha = 1 }
-
-                    else if computer.keyboard.keys == Set.singleton "b" then
-                        { x = 0, y = 0, colorPhase = 0, alpha = 1 }
-
-                    else
-                        { x = x, y = y, colorPhase = colorPhase, alpha = alpha }
-            in
-            { state | seed = newSeed, data = newDatum :: state.data, t = state.t + 1 }
-
-
-type alias State =
-    { seed : Random.Seed
-    , data : List Datum
-    , t : Int
-    }
-
-
-
--- HELPERS
-
-
-wrap : Float -> Float -> Float -> Float -> Float
-wrap epsilon lower upper x =
-    if x > upper - epsilon then
-        lower + epsilon
-
-    else if x < lower + epsilon then
-        upper - epsilon
-
-    else
-        x
-
-
-bounce : Float -> Float -> Float -> Float -> Float -> Float
-bounce epsilon dBounce lower upper x =
-    if x > upper - epsilon then
-        upper - dBounce
-
-    else if x < lower + epsilon then
-        lower + dBounce
-
-    else
-        x
-
-
-type alias Delta =
-    { dx : Float, dy : Float, dColor : Float, dAlpha : Float }
-
-
-newDelta : Random.Seed -> ( Delta, Random.Seed )
-newDelta seed0 =
-    let
-        ( dx, seed1 ) =
-            Random.step (Random.float -config.deltaXY config.deltaXY) seed0
-
-        ( dy, seed2 ) =
-            Random.step (Random.float -config.deltaXY config.deltaXY) seed1
-
-        ( dColor, seed3 ) =
-            Random.step (Random.float -config.deltaColor config.deltaColor) seed2
-
-        ( dAlpha, seed4 ) =
-            Random.step (Random.float -config.deltaAlpha config.deltaAlpha) seed3
-    in
-    ( Delta dx dy dColor dAlpha, seed4 )
+    Model.nextState state
