@@ -217,11 +217,11 @@ config =
     , populationSize = 200
     , initialSeed = Random.initialSeed 1234
     , transactionAmount = 2.0
-    , ubi = True
+    , ubi = False
 
     --
     , taxationInterval = 1000
-    , taxRate = 0.08
+    , taxRate = 0.0
     , socialPayment = 1.0
 
     --

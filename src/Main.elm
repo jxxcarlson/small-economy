@@ -42,60 +42,44 @@ visualize computer state =
 
         message1 : Shape
         message1 =
-            words red ("transactions = " ++ String.fromInt state.t)
-                |> moveX (computer.screen.width / 2 - 86 - 73 - dx)
-                |> moveY (computer.screen.height / 2 - 20 - dy)
+            display computer "transactions = " (String.fromInt state.t) (258 - dx) (270 - dy) 70
 
+        --words red ("transactions = " ++ String.fromInt state.t)
+        --    |> moveX (computer.screen.width / 2 - 86 - 82 - dx)
+        --    |> moveY (computer.screen.height / 2 - 20 - dy)
         message2 =
-            words red ("populaton = " ++ (state.populationSize |> toFloat |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 80 - 85 - dx)
-                |> moveY (computer.screen.height / 2 - 50 - dy)
+            display computer "populaton = " (state.populationSize |> toFloat |> Model.roundAt2 1 |> String.padRight 4 ' ') (265 - dx) (300 - dy) 70
 
         message2a =
-            words red ("transaction = $" ++ (state.transactionAmount |> Model.roundAt2 2))
-                |> moveX (computer.screen.width / 2 - 80 - 85 - dx)
-                |> moveY (computer.screen.height / 2 - 80 - dy)
+            display computer "transaction = " (state.transactionAmount |> Model.roundAt2 2) (263 - dx) (320 - dy) 70
 
         message2b =
-            words red ("initial Capital = $" ++ (state.initialCapital |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 89 - 64 - dx)
-                |> moveY (computer.screen.height / 2 - 100 - dy)
+            display computer "initial Capital = " (state.initialCapital |> Model.roundAt2 1) (253 - dx) (340 - dy) 70
 
         message3 =
-            words red ("max Capital = $" ++ (Model.maxCapital state |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 84 - 75 - dx)
-                |> moveY (computer.screen.height / 2 - 120 - dy)
+            display computer "max Capital = " (Model.maxCapital state |> Model.roundAt2 1) (258 - dx) (360 - dy) 70
 
         message4 =
-            words red ("quintile 5 = " ++ (quintiles.quintile5 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71 - 98 - dx)
-                |> moveY (computer.screen.height / 2 - 150 - dy)
+            display computer "quintile 5 = " (quintiles.quintile5 |> Model.roundAt2 1) (270 - dx) (390 - dy) 60
 
         message5 =
-            words red ("quintile 4 = " ++ (quintiles.quintile4 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71 - 98 - dx)
-                |> moveY (computer.screen.height / 2 - 170 - dy)
+            display computer "quintile 4 = " (quintiles.quintile4 |> Model.roundAt2 1) (270 - dx) (410 - dy) 60
 
         message6 =
-            words red ("quintile 3 = " ++ (quintiles.quintile3 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71 - 98 - dx)
-                |> moveY (computer.screen.height / 2 - 190 - dy)
+            display computer "quintile 3 = " (quintiles.quintile3 |> Model.roundAt2 1) (270 - dx) (430 - dy) 60
 
         message7 =
-            words red ("quintile 2 = " ++ (quintiles.quintile2 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71 - 98 - dx)
-                |> moveY (computer.screen.height / 2 - 210 - dy)
+            display computer "quintile 2 = " (quintiles.quintile2 |> Model.roundAt2 1) (270 - dx) (450 - dy) 60
 
         message8 =
-            words red ("quintile 1 = " ++ (quintiles.quintile1 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71 - 98 - dx)
-                |> moveY (computer.screen.height / 2 - 230 - dy)
+            display computer "quintile 1 = " (quintiles.quintile1 |> Model.roundAt2 1) (270 - dx) (470 - dy) 60
 
         message9 =
-            words red ("max / quintile 1 = " ++ ((Model.maxCapital state / quintiles.quintile1) |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 85 - 64 - dx)
-                |> moveY (computer.screen.height / 2 - 260 - dy)
+            display computer "max / quintile 1 = " ((Model.maxCapital state / quintiles.quintile1) |> Model.roundAt2 1 |> String.padRight 16 ' ') (250 - dx) (500 - dy) 80
 
+        --words red ("max / quintile 1 = " ++ ((Model.maxCapital state / quintiles.quintile1) |> Model.roundAt2 1 |> String.padRight 16 ' '))
+        --    |> moveX (computer.screen.width / 2 - 85 - 64 - dx)
+        --    |> moveY (computer.screen.height / 2 - 260 - dy)
         messageC1 =
             words blue "Commands"
                 |> moveX (computer.screen.width / 2 - 121 - 62 - dx)
@@ -263,6 +247,17 @@ visualize computer state =
         |> moveY 10
 
 
+display computer str1 str2 dx dy deltaX =
+    [ words red str1
+        |> moveX (computer.screen.width / 2 - dx)
+        |> moveY (computer.screen.height / 2 - dy)
+    , words red str2
+        |> moveX (computer.screen.width / 2 - dx + deltaX)
+        |> moveY (computer.screen.height / 2 - dy)
+    ]
+        |> group
+
+
 personToShape : Float -> Int -> Model.Person -> Shape
 personToShape gridSize index person =
     let
@@ -328,7 +323,7 @@ update computer state =
             else if computer.keyboard.keys == Set.singleton "d" then
                 setTransactionAmount state 2.0
 
-            else if computer.keyboard.keys == Set.singleton "f" then
+            else if computer.keyboard.keys == Set.singleton "e" then
                 setTaxRate state 0.04
 
             else if computer.keyboard.keys == Set.singleton "f" then
