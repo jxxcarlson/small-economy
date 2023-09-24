@@ -12,7 +12,8 @@
             "elm/random": "1.0.0",
             "elm-community/list-extra": "8.7.0",
             "elm-community/maybe-extra": "5.3.0",
-            "evancz/elm-playground": "1.0.3"
+            "evancz/elm-playground": "1.0.3",
+            "mdgriffith/elm-ui": "1.1.8"
         },
         "indirect": {
             "elm/json": "1.1.3",

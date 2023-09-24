@@ -10,9 +10,14 @@ main =
     game view update (initialState config1)
 
 
+
+--initialState : Int -> Int -> Float -> Float -> Float -> State
+--initialState seedInteger populationSize gridSize initialCapital transactionAmount
+
+
 initialState : Config -> State
 initialState config =
-    Model.initialState (Random.initialSeed config.seed) config.populationSize config.gridSize config.initialCapital
+    Model.initialState config.seedInteger config.populationSize config.gridSize config.initialCapital 0.5
 
 
 view : Computer -> State -> List Shape
@@ -25,7 +30,7 @@ view computer state =
 
 
 type alias Config =
-    { seed : Int
+    { seedInteger : Int
     , populationSize : Int
     , gridSize : Float
     , radius : Float
@@ -34,7 +39,7 @@ type alias Config =
 
 
 config1 =
-    { seed = 12345
+    { seedInteger = 12345
     , populationSize = 200
     , initialCapital = 20
     , gridSize = 500
@@ -63,8 +68,8 @@ visualize computer state =
                 |> moveY (computer.screen.height / 2 - 50)
 
         message2a =
-            words red ("transaction = $" ++ (1 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 78)
+            words red ("transaction = $" ++ (0.5 |> Model.roundAt2 2))
+                |> moveX (computer.screen.width / 2 - 80)
                 |> moveY (computer.screen.height / 2 - 80)
 
         message2b =
@@ -107,6 +112,31 @@ visualize computer state =
                 |> moveX (computer.screen.width / 2 - 85)
                 |> moveY (computer.screen.height / 2 - 260)
 
+        messageC1 =
+            words blue "Commands"
+                |> moveX (computer.screen.width / 2 - 121)
+                |> moveY (computer.screen.height / 2 - 300)
+
+        messageC2 =
+            words blue "p: pause"
+                |> moveX (computer.screen.width / 2 - 131)
+                |> moveY (computer.screen.height / 2 - 320)
+
+        messageC3 =
+            words blue "r: run"
+                |> moveX (computer.screen.width / 2 - 140)
+                |> moveY (computer.screen.height / 2 - 340)
+
+        messageC4 =
+            words blue "x: reset"
+                |> moveX (computer.screen.width / 2 - 136)
+                |> moveY (computer.screen.height / 2 - 360)
+
+        messageC5 =
+            words blue "s: new seed"
+                |> moveX (computer.screen.width / 2 - 122)
+                |> moveY (computer.screen.height / 2 - 380)
+
         quintiles =
             Model.quintiles (state.people |> List.map .capital)
 
@@ -140,6 +170,11 @@ visualize computer state =
         :: message10
         :: message11
         :: message12
+        :: messageC1
+        :: messageC2
+        :: messageC3
+        :: messageC4
+        :: messageC5
         :: List.indexedMap (personToShape config1.gridSize) state.people
 
 
@@ -167,4 +202,36 @@ personToShape gridSize index person =
 
 update : Computer -> State -> State
 update computer state =
-    Model.nextState state
+    let
+        newState =
+            if computer.keyboard.keys == Set.singleton "p" then
+                { state | paused = True }
+
+            else if computer.keyboard.keys == Set.singleton "r" then
+                { state | paused = False }
+
+            else if computer.keyboard.keys == Set.singleton "x" then
+                let
+                    state1 =
+                        initialState config1
+                in
+                { state1 | paused = True }
+
+            else if computer.keyboard.keys == Set.singleton "s" then
+                let
+                    newSeedInteger =
+                        state.seedInteger + 1
+
+                    state1 =
+                        initialState { config1 | seedInteger = newSeedInteger }
+                in
+                { state1 | paused = True }
+
+            else
+                state
+    in
+    if newState.paused then
+        newState
+
+    else
+        Model.nextState newState

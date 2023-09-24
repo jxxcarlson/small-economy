@@ -78,10 +78,12 @@ runN n state =
 
 
 type alias State =
-    { seed : Random.Seed
+    { seedInteger : Int
+    , seed : Random.Seed
     , people : List Person
     , transactionAmount : Float
     , t : Int
+    , paused : Bool
     }
 
 
@@ -121,16 +123,18 @@ nextState state =
     }
 
 
-initialState : Random.Seed -> Int -> Float -> Float -> State
-initialState seed populationSize gridSize initialCapital =
+initialState : Int -> Int -> Float -> Float -> Float -> State
+initialState seedInteger populationSize gridSize initialCapital transactionAmount =
     let
         ( newSeed, people ) =
-            initPeople seed populationSize gridSize initialCapital
+            initPeople (Random.initialSeed seedInteger) populationSize gridSize initialCapital
     in
-    { seed = newSeed
+    { seedInteger = seedInteger
+    , seed = newSeed
     , people = people
-    , transactionAmount = 0.5
+    , transactionAmount = transactionAmount
     , t = 0
+    , paused = False
     }
 
 
