@@ -171,6 +171,10 @@ listCapital people =
     List.map (\p -> ( p.id, p.capital )) people
 
 
+
+-- ROUNDING
+
+
 roundAt : Int -> Float -> Float
 roundAt n f =
     let

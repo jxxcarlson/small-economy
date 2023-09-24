@@ -25,6 +25,10 @@ probabilitiesHelp data =
         probabilitiesHelp { n = data.n - 1, seed = seed, probs = p :: data.probs }
 
 
+
+-- Random list of integers
+
+
 ints : Random.Seed -> Int -> Int -> Int -> { seed : Random.Seed, ints : List Int }
 ints seed low high n =
     let

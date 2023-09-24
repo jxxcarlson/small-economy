@@ -20,6 +20,10 @@ view computer state =
     visualize computer state
 
 
+
+-- CONFIGURATION
+
+
 type alias Config =
     { seed : Int
     , populationSize : Int
