@@ -30,7 +30,7 @@ type alias Config =
 
 
 config1 =
-    { seed = 1234
+    { seed = 12345
     , populationSize = 200
     , initialCapital = 20
     , gridSize = 500
@@ -74,7 +74,7 @@ visualize computer state =
                 |> moveY (computer.screen.height / 2 - 120)
 
         message6 =
-            words red ("quintile 3 = " ++ (quintiles.quintile2 |> Model.roundAt2 1))
+            words red ("quintile 3 = " ++ (quintiles.quintile3 |> Model.roundAt2 1))
                 |> moveX (computer.screen.width / 2 - 71)
                 |> moveY (computer.screen.height / 2 - 140)
 
@@ -87,6 +87,11 @@ visualize computer state =
             words red ("quintile 1 = " ++ (quintiles.quintile1 |> Model.roundAt2 1))
                 |> moveX (computer.screen.width / 2 - 71)
                 |> moveY (computer.screen.height / 2 - 180)
+
+        message9 =
+            words red ("max / quintile 1 = " ++ ((Model.maxCapital state / quintiles.quintile1) |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 85)
+                |> moveY (computer.screen.height / 2 - 210)
 
         quintiles =
             Model.quintiles (state.people |> List.map .capital)
@@ -101,6 +106,7 @@ visualize computer state =
         :: message6
         :: message7
         :: message8
+        :: message9
         :: List.indexedMap (personToShape config1.gridSize) state.people
 
 
@@ -120,7 +126,8 @@ personToShape gridSize index person =
             1
 
         radius =
-            person.capital ^ 2.5 / 850
+            -- person.capital ^ 3 / 3000
+            person.capital ^ 2.5 / 1000
     in
     circle c2 radius |> moveX dx |> moveY dy
 
