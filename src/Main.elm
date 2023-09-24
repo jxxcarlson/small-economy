@@ -112,12 +112,17 @@ visualize computer state =
 
         message10 =
             words Playground.blue "Random Exchange Model"
-                |> moveY (-config1.gridSize / 2 - 30)
+                |> moveY (-config1.gridSize / 2 - 40)
 
         message11 =
             words Playground.blue "https://scripta.io/s/jxxcarlson:wealth-and-the-random-exchange-model"
                 --|> moveX 40
-                |> moveY (-config1.gridSize / 2 - 55)
+                |> moveY (-config1.gridSize / 2 - 70)
+
+        message12 =
+            words Playground.blue "https://github.com/jxxcarlson/small-economy"
+                --|> moveX 40
+                |> moveY (-config1.gridSize / 2 - 90)
     in
     blackScreen
         :: boundingBox
@@ -134,6 +139,7 @@ visualize computer state =
         :: message9
         :: message10
         :: message11
+        :: message12
         :: List.indexedMap (personToShape config1.gridSize) state.people
 
 
