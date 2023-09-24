@@ -53,57 +53,74 @@ visualize computer state =
 
         message1 : Shape
         message1 =
-            words red ("t = " ++ String.fromInt state.t)
-                |> moveX (computer.screen.width / 2 - 50)
+            words red ("transactions = " ++ String.fromInt state.t)
+                |> moveX (computer.screen.width / 2 - 86)
                 |> moveY (computer.screen.height / 2 - 20)
 
         message2 =
-            words red ("initial Capital = " ++ (config1.initialCapital |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 85)
+            words red ("Populaton = " ++ (config1.populationSize |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 80)
                 |> moveY (computer.screen.height / 2 - 50)
 
+        message2a =
+            words red ("transaction = $" ++ (1 |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 78)
+                |> moveY (computer.screen.height / 2 - 80)
+
+        message2b =
+            words red ("initial Capital = $" ++ (config1.initialCapital |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 89)
+                |> moveY (computer.screen.height / 2 - 100)
+
         message3 =
-            words red ("max Capital = " ++ (Model.maxCapital state |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 80)
-                |> moveY (computer.screen.height / 2 - 70)
+            words red ("max Capital = $" ++ (Model.maxCapital state |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 84)
+                |> moveY (computer.screen.height / 2 - 120)
 
         message4 =
             words red ("quintile 5 = " ++ (quintiles.quintile5 |> Model.roundAt2 1))
                 |> moveX (computer.screen.width / 2 - 71)
-                |> moveY (computer.screen.height / 2 - 100)
+                |> moveY (computer.screen.height / 2 - 150)
 
         message5 =
             words red ("quintile 4 = " ++ (quintiles.quintile4 |> Model.roundAt2 1))
                 |> moveX (computer.screen.width / 2 - 71)
-                |> moveY (computer.screen.height / 2 - 120)
+                |> moveY (computer.screen.height / 2 - 170)
 
         message6 =
             words red ("quintile 3 = " ++ (quintiles.quintile3 |> Model.roundAt2 1))
                 |> moveX (computer.screen.width / 2 - 71)
-                |> moveY (computer.screen.height / 2 - 140)
+                |> moveY (computer.screen.height / 2 - 190)
 
         message7 =
             words red ("quintile 2 = " ++ (quintiles.quintile2 |> Model.roundAt2 1))
                 |> moveX (computer.screen.width / 2 - 71)
-                |> moveY (computer.screen.height / 2 - 160)
+                |> moveY (computer.screen.height / 2 - 210)
 
         message8 =
             words red ("quintile 1 = " ++ (quintiles.quintile1 |> Model.roundAt2 1))
                 |> moveX (computer.screen.width / 2 - 71)
-                |> moveY (computer.screen.height / 2 - 180)
+                |> moveY (computer.screen.height / 2 - 230)
 
         message9 =
             words red ("max / quintile 1 = " ++ ((Model.maxCapital state / quintiles.quintile1) |> Model.roundAt2 1))
                 |> moveX (computer.screen.width / 2 - 85)
-                |> moveY (computer.screen.height / 2 - 210)
+                |> moveY (computer.screen.height / 2 - 260)
 
         quintiles =
             Model.quintiles (state.people |> List.map .capital)
+
+        message10 =
+            words Playground.blue "Random Exchange Model"
+                --|> moveX 40
+                |> moveY (-config1.gridSize / 2 - 30)
     in
     blackScreen
         :: boundingBox
         :: message1
         :: message2
+        :: message2a
+        :: message2b
         :: message3
         :: message4
         :: message5
@@ -111,6 +128,7 @@ visualize computer state =
         :: message7
         :: message8
         :: message9
+        :: message10
         :: List.indexedMap (personToShape config1.gridSize) state.people
 
 
