@@ -10,11 +10,6 @@ main =
     game view update (initialState config1)
 
 
-
---initialState : Int -> Int -> Float -> Float -> Float -> State
---initialState seedInteger populationSize gridSize initialCapital transactionAmount
-
-
 initialState : Config -> State
 initialState config =
     Model.initialState config.seedInteger config.populationSize config.gridSize config.initialCapital config.transactionAmount
@@ -108,12 +103,12 @@ visualize computer state =
 
         message7 =
             words red ("quintile 2 = " ++ (quintiles.quintile2 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71 - 100 - dx)
+                |> moveX (computer.screen.width / 2 - 71 - 98 - dx)
                 |> moveY (computer.screen.height / 2 - 210 - dy)
 
         message8 =
             words red ("quintile 1 = " ++ (quintiles.quintile1 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71 - 100 - dx)
+                |> moveX (computer.screen.width / 2 - 71 - 98 - dx)
                 |> moveY (computer.screen.height / 2 - 230 - dy)
 
         message9 =
@@ -172,16 +167,6 @@ visualize computer state =
         message10 =
             words Playground.blue "Random Exchange Model"
                 |> moveY (-config1.gridSize / 2 - 40)
-
-        message11 =
-            words Playground.blue "https://scripta.io/s/jxxcarlson:wealth-and-the-random-exchange-model"
-                --|> moveX 40
-                |> moveY (-config1.gridSize / 2 - 70)
-
-        message12 =
-            words Playground.blue "https://github.com/jxxcarlson/small-economy"
-                --|> moveX 40
-                |> moveY (-config1.gridSize / 2 - 90)
     in
     boundingBox
         :: message1
@@ -196,8 +181,6 @@ visualize computer state =
         :: message8
         :: message9
         :: message10
-        :: message11
-        :: message12
         :: messageC1
         :: messageC2
         :: messageC3
@@ -209,7 +192,7 @@ visualize computer state =
         :: messageC9
         :: List.indexedMap (personToShape config1.gridSize) state.people
         |> group
-        |> moveY 40
+        |> moveY 10
 
 
 personToShape : Float -> Int -> Model.Person -> Shape
