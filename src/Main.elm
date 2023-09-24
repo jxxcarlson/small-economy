@@ -1,125 +1,184 @@
-module Main exposing(main)
+module Main exposing (..)
 
 import Playground exposing (..)
 import Random
 import Set
 
 
-
 main =
-  game view update initialState
+    game view update initialState
+
 
 view computer state =
-  visualize computer state
+    visualize computer state
+
+
+config =
+    { deltaAlpha = 0.05
+    , deltaColor = 0.05
+    , deltaXY = 2.0
+    , radius = 3.0
+    }
+
 
 visualize : Computer -> State -> List Shape
 visualize computer state =
     let
-         blackScreen = rectangle black computer.screen.width computer.screen.height
+        blackScreen =
+            rectangle black computer.screen.width computer.screen.height
 
-         message : Shape
-         message = words red ("t = " ++ String.fromInt state.t)
-            |> moveX (computer.screen.width / 2 - 50)
-            |> moveY (computer.screen.height/2 - 20)
+        message : Shape
+        message =
+            words red ("t = " ++ String.fromInt state.t)
+                |> moveX (computer.screen.width / 2 - 50)
+                |> moveY (computer.screen.height / 2 - 20)
 
-         sun : Shape
-         sun = circle yellow 30.0
+        message2 : Shape
+        message2 =
+            words red ("(" ++ x ++ ", " ++ y ++ ")")
+                |> moveX (computer.screen.width / 2 - 50)
+                |> moveY (computer.screen.height / 2 - 40)
 
-     in
-        blackScreen ::  sun :: message :: (List.map datumToShape state.data)
+        x =
+            Maybe.map .x (List.head state.data) |> Maybe.withDefault 0 |> round |> String.fromInt
 
-datumToShape : Datum -> Shape
-datumToShape datum =
-  let
-    dx = scaleObject*datum.x
-    dy = scaleObject*datum.y
-    r = (datum.colorPhase * 255)
-    b = (255 * (1 - datum.colorPhase))
-    c = rgb r 0 b
-    scaleObject = 4.5
-  in
-    (circle c 2.0) |> moveX dx |> moveY dy |> fade datum.alpha
+        y =
+            Maybe.map .y (List.head state.data) |> Maybe.withDefault 0 |> round |> String.fromInt
 
-update : Computer -> State ->  State
+        sun : Shape
+        sun =
+            circle white 3.0
+    in
+    blackScreen :: sun :: message :: message2 :: List.indexedMap datumToShape state.data
+
+
+datumToShape : Int -> Datum -> Shape
+datumToShape index datum =
+    let
+        dx =
+            scaleObject * datum.x
+
+        dy =
+            scaleObject * datum.y
+
+        r =
+            datum.colorPhase * 255
+
+        b =
+            255 * (1 - datum.colorPhase)
+
+        c =
+            if index == 0 then
+                white
+
+            else
+                rgb r 0 b
+
+        alpha_ =
+            if index == 0 then
+                1
+
+            else
+                datum.alpha
+
+        scaleObject =
+            4.5
+    in
+    circle c config.radius |> moveX dx |> moveY dy |> fade alpha_
+
+
+update : Computer -> State -> State
 update computer state =
-  case List.head state.data of
-      Nothing -> state
-      Just firstDatum ->
-          let
-            (delta, newSeed)  =
-              newDelta state.seed
-            x = firstDatum.x + delta.dx |> clamp computer.screen.left computer.screen.right
-            y = firstDatum.y + delta.dy |> clamp computer.screen.bottom computer.screen.top
-            colorPhase = firstDatum.colorPhase + delta.dColor |> clamp 0 1
-            alpha = firstDatum.alpha + delta.dAlpha |> clamp 0 1
+    case List.head state.data of
+        Nothing ->
+            state
 
-            newDatum : Datum
-            newDatum =
-                if computer.keyboard.keys == Set.singleton "r" then
-                   let
-                       _ = Debug.log "(x,y)" (computer.mouse.x  , computer.mouse.y )
-                   in
-                   --{ x = computer.mouse.x/3 , y = -(computer.mouse.y /3), colorPhase = colorPhase, alpha = alpha }
-                   { x = 0 , y = 0, colorPhase = 1, alpha = alpha }
+        Just firstDatum ->
+            let
+                ( delta, newSeed ) =
+                    newDelta state.seed
 
-                else if computer.keyboard.keys == Set.singleton "b" then
-                    let
-                        _ = Debug.log "(x,y)" (computer.mouse.x  , computer.mouse.y )
-                    in
-                    --{ x = computer.mouse.x/3 , y = -(computer.mouse.y /3), colorPhase = colorPhase, alpha = alpha }
-                    { x = 0 , y = 0, colorPhase = 0, alpha = alpha }
+                x =
+                    --firstDatum.x + delta.dx |> bounce 2 20 computer.screen.left computer.screen.right
+                    firstDatum.x + delta.dx |> bounce 2 20 -150 150
 
-                else if computer.keyboard.keys == Set.singleton "0" then
-                    let
-                        _ = Debug.log "(x,y)" (computer.mouse.x  , computer.mouse.y )
-                    in
-                    --{ x = computer.mouse.x/3 , y = -(computer.mouse.y /3), colorPhase = colorPhase, alpha = alpha }
-                    { x = 0 , y = 0, colorPhase = 0.5, alpha = alpha }
-                else
-                  { x = x, y = y, colorPhase = colorPhase, alpha = alpha }
-          in
-           { state | seed = newSeed , data = newDatum :: state.data , t = state.t + 1 }
+                y =
+                    --firstDatum.y + delta.dy |> bounce 2 20 computer.screen.bottom computer.screen.top
+                    firstDatum.y + delta.dy |> bounce 2 20 -100 100
 
+                colorPhase =
+                    firstDatum.colorPhase + delta.dColor |> bounce 0.01 0.05 0 1
 
-type alias State = {
-     seed : Random.Seed
-   , data : List Datum
-   , t : Int
-   }
+                alpha =
+                    --firstDatum.alpha + delta.dAlpha |> wrap 0.01 0 0.2
+                    firstDatum.alpha + delta.dAlpha |> bounce 0.01 0.05 0.2 0.3
+
+                newDatum : Datum
+                newDatum =
+                    if computer.keyboard.keys == Set.singleton "r" then
+                        { x = 0, y = 0, colorPhase = 1, alpha = 1 }
+
+                    else if computer.keyboard.keys == Set.singleton "b" then
+                        { x = 0, y = 0, colorPhase = 0, alpha = 1 }
+
+                    else
+                        { x = x, y = y, colorPhase = colorPhase, alpha = alpha }
+            in
+            { state | seed = newSeed, data = newDatum :: state.data, t = state.t + 1 }
 
 
-type ExtendedDatum = D Datum | S Shape
+type alias State =
+    { seed : Random.Seed
+    , data : List Datum
+    , t : Int
+    }
 
-type alias Datum = {
-     x : Float
-   , y : Float
-   , colorPhase : Float
-   , alpha : Float
-   }
-
-initialDatum : Datum
-initialDatum =
-  { x = 0, y = 0, colorPhase = 0.5, alpha = 0.5 }
-
-initialState : State
-initialState = { seed = Random.initialSeed 1234, data = initialDatum::[], t = 0  }
 
 
 -- HELPERS
 
+
 wrap : Float -> Float -> Float -> Float -> Float
 wrap epsilon lower upper x =
-    if x > upper - epsilon then lower + epsilon
-    else upper - epsilon
+    if x > upper - epsilon then
+        lower + epsilon
 
-type alias Delta = { dx : Float, dy : Float, dColor : Float, dAlpha : Float }
+    else if x < lower + epsilon then
+        upper - epsilon
 
-newDelta : Random.Seed -> (Delta, Random.Seed)
+    else
+        x
+
+
+bounce : Float -> Float -> Float -> Float -> Float -> Float
+bounce epsilon dBounce lower upper x =
+    if x > upper - epsilon then
+        upper - dBounce
+
+    else if x < lower + epsilon then
+        lower + dBounce
+
+    else
+        x
+
+
+type alias Delta =
+    { dx : Float, dy : Float, dColor : Float, dAlpha : Float }
+
+
+newDelta : Random.Seed -> ( Delta, Random.Seed )
 newDelta seed0 =
-  let
-    (dx, seed1) = Random.step (Random.float -1 1) seed0
-    (dy, seed2) = Random.step (Random.float -1 1) seed1
-    (dColor, seed3) = Random.step (Random.float -0.01 0.01) seed2
-    (dAlpha, seed4) = Random.step (Random.float -0.01 0.01) seed3
-  in
+    let
+        ( dx, seed1 ) =
+            Random.step (Random.float -config.deltaXY config.deltaXY) seed0
+
+        ( dy, seed2 ) =
+            Random.step (Random.float -config.deltaXY config.deltaXY) seed1
+
+        ( dColor, seed3 ) =
+            Random.step (Random.float -config.deltaColor config.deltaColor) seed2
+
+        ( dAlpha, seed4 ) =
+            Random.step (Random.float -config.deltaAlpha config.deltaAlpha) seed3
+    in
     ( Delta dx dy dColor dAlpha, seed4 )
