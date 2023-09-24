@@ -1,5 +1,6 @@
 module Model exposing
-    ( Person
+    ( Config
+    , Person
     , State
     , average
     , config
@@ -81,7 +82,18 @@ type alias State =
     { seedInteger : Int
     , seed : Random.Seed
     , people : List Person
+    , populationSize : Int
     , transactionAmount : Float
+    , initialCapital : Float
+    , gridSize : Float
+
+    --
+    , ubi : Bool
+    , taxRate : Float
+    , socialPayment : Float
+    , taxationInterval : Int
+
+    --
     , t : Int
     , paused : Bool
     }
@@ -118,38 +130,102 @@ nextState state =
     in
     { state
         | seed = seed
-        , people = updatePeople state.people i j
+        , people =
+            if state.t > 1 && state.ubi && modBy state.taxationInterval state.t == 0 then
+                runUBI state
+
+            else
+                updatePeople state.people i j
         , t = state.t + 1
     }
 
 
-initialState : Int -> Int -> Float -> Float -> Float -> State
-initialState seedInteger populationSize gridSize initialCapital transactionAmount =
+runUBI : State -> List Person
+runUBI state =
+    let
+        peopleAndTaxes : List ( Person, Float )
+        peopleAndTaxes =
+            List.map (taxPerson state.taxRate) state.people
+
+        peopleAfterTaxes =
+            List.map Tuple.first peopleAndTaxes
+
+        taxRevenue =
+            List.map Tuple.second peopleAndTaxes |> List.sum
+
+        ubiPayment =
+            taxRevenue / toFloat (List.length state.people)
+
+        peopleAfterUBIPaid =
+            List.map (\p -> { p | capital = p.capital + ubiPayment }) peopleAfterTaxes
+    in
+    peopleAfterUBIPaid
+
+
+taxPerson : Float -> Person -> ( Person, Float )
+taxPerson taxRate person =
+    let
+        taxAmount =
+            person.capital * taxRate
+
+        newPerson =
+            { person | capital = person.capital - taxAmount }
+    in
+    ( newPerson, taxAmount )
+
+
+initialState : Config -> State
+initialState config_ =
     let
         ( newSeed, people ) =
-            initPeople (Random.initialSeed seedInteger) populationSize gridSize initialCapital
+            initPeople (Random.initialSeed config_.seedInteger) config_.populationSize config_.gridSize config_.initialCapital
     in
-    { seedInteger = seedInteger
+    { seedInteger = config_.seedInteger
     , seed = newSeed
     , people = people
-    , transactionAmount = transactionAmount
+    , populationSize = config_.populationSize
+    , initialCapital = config_.initialCapital
+    , transactionAmount = config_.transactionAmount
+    , gridSize = config_.gridSize
     , t = 0
     , paused = False
+    , ubi = config_.ubi
+    , taxRate = config_.taxRate
+    , socialPayment = config_.socialPayment
+    , taxationInterval = config_.taxationInterval
     }
 
 
 type alias Config =
-    { initialCapital : Float
-    , initialPopulation : Int
+    { seedInteger : Int
+    , initialCapital : Float
+    , populationSize : Int
     , initialSeed : Random.Seed
+    , transactionAmount : Float
+    , ubi : Bool
+    , taxationInterval : Int
+    , taxRate : Float
+    , socialPayment : Float
+    , gridSize : Float
     }
 
 
 config : Config
 config =
-    { initialCapital = 100.0
-    , initialPopulation = 20
+    { seedInteger = 1234
+    , initialCapital = 10.0
+    , populationSize = 200
     , initialSeed = Random.initialSeed 1234
+    , transactionAmount = 2.0
+    , ubi = True
+
+    --
+    , taxationInterval = 1000
+    , taxRate = 0.08
+    , socialPayment = 1.0
+
+    --
+    , gridSize = 500.0
     }
 
 

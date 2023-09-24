@@ -7,12 +7,12 @@ import Set
 
 
 main =
-    game view update (initialState config1)
+    game view update (initialState Model.config)
 
 
-initialState : Config -> State
+initialState : Model.Config -> State
 initialState config =
-    Model.initialState config.seedInteger config.populationSize config.gridSize config.initialCapital config.transactionAmount
+    Model.initialState Model.config
 
 
 view : Computer -> State -> List Shape
@@ -24,26 +24,6 @@ view computer state =
 -- CONFIGURATION
 
 
-type alias Config =
-    { seedInteger : Int
-    , populationSize : Int
-    , transactionAmount : Float
-    , gridSize : Float
-    , radius : Float
-    , initialCapital : Float
-    }
-
-
-config1 =
-    { seedInteger = 12345
-    , populationSize = 200
-    , initialCapital = 20
-    , transactionAmount = 1.0
-    , gridSize = 500
-    , radius = 1.0
-    }
-
-
 blackScreen computer =
     rectangle black computer.screen.width computer.screen.height
 
@@ -52,7 +32,7 @@ visualize : Computer -> State -> Shape
 visualize computer state =
     let
         boundingBox =
-            rectangle (rgb 30 30 60) (config1.gridSize + 20) (config1.gridSize + 20)
+            rectangle (rgb 30 30 60) (state.gridSize + 20) (state.gridSize + 20)
 
         dx =
             40
@@ -67,7 +47,7 @@ visualize computer state =
                 |> moveY (computer.screen.height / 2 - 20 - dy)
 
         message2 =
-            words red ("populaton = " ++ (config1.populationSize |> Model.roundAt2 1))
+            words red ("populaton = " ++ (state.populationSize |> toFloat |> Model.roundAt2 1))
                 |> moveX (computer.screen.width / 2 - 80 - 85 - dx)
                 |> moveY (computer.screen.height / 2 - 50 - dy)
 
@@ -77,7 +57,7 @@ visualize computer state =
                 |> moveY (computer.screen.height / 2 - 80 - dy)
 
         message2b =
-            words red ("initial Capital = $" ++ (config1.initialCapital |> Model.roundAt2 1))
+            words red ("initial Capital = $" ++ (state.initialCapital |> Model.roundAt2 1))
                 |> moveX (computer.screen.width / 2 - 89 - 64 - dx)
                 |> moveY (computer.screen.height / 2 - 100 - dy)
 
@@ -142,31 +122,115 @@ visualize computer state =
                 |> moveY (computer.screen.height / 2 - 410 - dy)
 
         messageC6 =
-            words blue "a: set transaction amount to 0.5"
+            let
+                c =
+                    if state.transactionAmount == 0.5 then
+                        red
+
+                    else
+                        blue
+            in
+            words c "a: set transaction amount to 0.5"
                 |> moveX (computer.screen.width / 2 - 122 - dx)
                 |> moveY (computer.screen.height / 2 - 440 - dy)
 
         messageC7 =
-            words blue "b: set transaction amount to 1.0"
+            let
+                c =
+                    if state.transactionAmount == 1.0 then
+                        red
+
+                    else
+                        blue
+            in
+            words c "b: set transaction amount to 1.0"
                 |> moveX (computer.screen.width / 2 - 122 - dx)
                 |> moveY (computer.screen.height / 2 - 460 - dy)
 
         messageC8 =
-            words blue "c: set transaction amount to 1.5"
+            let
+                c =
+                    if state.transactionAmount == 1.5 then
+                        red
+
+                    else
+                        blue
+            in
+            words c "c: set transaction amount to 1.5"
                 |> moveX (computer.screen.width / 2 - 122 - dx)
                 |> moveY (computer.screen.height / 2 - 480 - dy)
 
         messageC9 =
-            words blue "d: set transaction amount to 2.0"
+            let
+                c =
+                    if state.transactionAmount == 2.0 then
+                        red
+
+                    else
+                        blue
+            in
+            words c "d: set transaction amount to 2.0"
                 |> moveX (computer.screen.width / 2 - 122 - dx)
                 |> moveY (computer.screen.height / 2 - 500 - dy)
+
+        messageC10 =
+            let
+                c =
+                    if state.taxRate == 0 then
+                        red
+
+                    else
+                        blue
+            in
+            words c "n: no taxes"
+                |> moveX (computer.screen.width / 2 - 188 - dx)
+                |> moveY (computer.screen.height / 2 - 530 - dy)
+
+        messageC11 =
+            let
+                c =
+                    if state.taxRate == 0.04 then
+                        red
+
+                    else
+                        blue
+            in
+            words c "e: tax rate = 4%"
+                |> moveX (computer.screen.width / 2 - 172 - dx)
+                |> moveY (computer.screen.height / 2 - 550 - dy)
+
+        messageC12 =
+            let
+                c =
+                    if state.taxRate == 0.08 then
+                        red
+
+                    else
+                        blue
+            in
+            words c "f: tax rate = 8%"
+                |> moveX (computer.screen.width / 2 - 172 - dx)
+                |> moveY (computer.screen.height / 2 - 570 - dy)
+
+        messageC13 =
+            let
+                c =
+                    if state.taxRate == 0.12 then
+                        red
+
+                    else
+                        blue
+            in
+            words c "g: tax rate 12%"
+                |> moveX (computer.screen.width / 2 - 172 - dx)
+                |> moveY (computer.screen.height / 2 - 590 - dy)
 
         quintiles =
             Model.quintiles (state.people |> List.map .capital)
 
         message10 =
             words Playground.blue "Random Exchange Model"
-                |> moveY (-config1.gridSize / 2 - 40)
+                |> moveY (-state.gridSize / 2 - 40)
     in
     boundingBox
         :: message1
@@ -190,7 +254,11 @@ visualize computer state =
         :: messageC7
         :: messageC8
         :: messageC9
-        :: List.indexedMap (personToShape config1.gridSize) state.people
+        :: messageC10
+        :: messageC11
+        :: messageC12
+        :: messageC13
+        :: List.indexedMap (personToShape state.gridSize) state.people
         |> group
         |> moveY 10
 
@@ -212,7 +280,7 @@ personToShape gridSize index person =
 
         radius =
             -- person.capital ^ 3 / 3000
-            max 1 (person.capital ^ 2.5 / 1000)
+            max 1 (person.capital ^ 2.5 / 500)
     in
     circle c2 radius |> moveX dx |> moveY dy
 
@@ -230,7 +298,7 @@ update computer state =
             else if computer.keyboard.keys == Set.singleton "x" then
                 let
                     state1 =
-                        initialState config1
+                        initialState Model.config
                 in
                 { state1 | paused = True }
 
@@ -240,49 +308,37 @@ update computer state =
                         state.seedInteger + 1
 
                     state1 =
-                        initialState { config1 | seedInteger = newSeedInteger }
+                        let
+                            originalConfig =
+                                Model.config
+                        in
+                        initialState { originalConfig | seedInteger = newSeedInteger }
                 in
                 { state1 | paused = True }
 
             else if computer.keyboard.keys == Set.singleton "a" then
-                let
-                    newTransactionAmount =
-                        0.5
-
-                    state1 =
-                        { state | transactionAmount = newTransactionAmount }
-                in
-                { state1 | paused = True }
+                setTransactionAmount state 0.5
 
             else if computer.keyboard.keys == Set.singleton "b" then
-                let
-                    newTransactionAmount =
-                        1.0
-
-                    state1 =
-                        { state | transactionAmount = newTransactionAmount }
-                in
-                { state1 | paused = True }
+                setTransactionAmount state 1.0
 
             else if computer.keyboard.keys == Set.singleton "c" then
-                let
-                    newTransactionAmount =
-                        1.5
-
-                    state1 =
-                        { state | transactionAmount = newTransactionAmount }
-                in
-                { state1 | paused = True }
+                setTransactionAmount state 1.5
 
             else if computer.keyboard.keys == Set.singleton "d" then
-                let
-                    newTransactionAmount =
-                        2.0
+                setTransactionAmount state 2.0
 
-                    state1 =
-                        { state | transactionAmount = newTransactionAmount }
-                in
-                { state1 | paused = True }
+            else if computer.keyboard.keys == Set.singleton "f" then
+                setTaxRate state 0.04
+
+            else if computer.keyboard.keys == Set.singleton "f" then
+                setTaxRate state 0.08
+
+            else if computer.keyboard.keys == Set.singleton "g" then
+                setTaxRate state 0.12
+
+            else if computer.keyboard.keys == Set.singleton "n" then
+                unSetTaxRate state
 
             else
                 state
@@ -292,3 +348,27 @@ update computer state =
 
     else
         Model.nextState newState
+
+
+setTransactionAmount state newTransactionAmount =
+    let
+        state1 =
+            { state | transactionAmount = newTransactionAmount }
+    in
+    { state1 | paused = True }
+
+
+setTaxRate state rate =
+    let
+        state1 =
+            { state | taxRate = rate }
+    in
+    { state1 | paused = True, ubi = True }
+
+
+unSetTaxRate state =
+    let
+        state1 =
+            { state | taxRate = 0 }
+    in
+    { state1 | paused = True, ubi = False }
