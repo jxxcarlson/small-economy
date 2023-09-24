@@ -61,83 +61,103 @@ visualize computer state =
         message1 : Shape
         message1 =
             words red ("transactions = " ++ String.fromInt state.t)
-                |> moveX (computer.screen.width / 2 - 86)
+                |> moveX (computer.screen.width / 2 - 86 - 73)
                 |> moveY (computer.screen.height / 2 - 20)
 
         message2 =
-            words red ("Populaton = " ++ (config1.populationSize |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 80)
+            words red ("populaton = " ++ (config1.populationSize |> Model.roundAt2 1))
+                |> moveX (computer.screen.width / 2 - 80 - 85)
                 |> moveY (computer.screen.height / 2 - 50)
 
         message2a =
             words red ("transaction = $" ++ (state.transactionAmount |> Model.roundAt2 2))
-                |> moveX (computer.screen.width / 2 - 80)
+                |> moveX (computer.screen.width / 2 - 80 - 85)
                 |> moveY (computer.screen.height / 2 - 80)
 
         message2b =
             words red ("initial Capital = $" ++ (config1.initialCapital |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 89)
+                |> moveX (computer.screen.width / 2 - 89 - 64)
                 |> moveY (computer.screen.height / 2 - 100)
 
         message3 =
             words red ("max Capital = $" ++ (Model.maxCapital state |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 84)
+                |> moveX (computer.screen.width / 2 - 84 - 75)
                 |> moveY (computer.screen.height / 2 - 120)
 
         message4 =
             words red ("quintile 5 = " ++ (quintiles.quintile5 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71)
+                |> moveX (computer.screen.width / 2 - 71 - 98)
                 |> moveY (computer.screen.height / 2 - 150)
 
         message5 =
             words red ("quintile 4 = " ++ (quintiles.quintile4 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71)
+                |> moveX (computer.screen.width / 2 - 71 - 98)
                 |> moveY (computer.screen.height / 2 - 170)
 
         message6 =
             words red ("quintile 3 = " ++ (quintiles.quintile3 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71)
+                |> moveX (computer.screen.width / 2 - 71 - 98)
                 |> moveY (computer.screen.height / 2 - 190)
 
         message7 =
             words red ("quintile 2 = " ++ (quintiles.quintile2 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71)
+                |> moveX (computer.screen.width / 2 - 71 - 100)
                 |> moveY (computer.screen.height / 2 - 210)
 
         message8 =
             words red ("quintile 1 = " ++ (quintiles.quintile1 |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 71)
+                |> moveX (computer.screen.width / 2 - 71 - 100)
                 |> moveY (computer.screen.height / 2 - 230)
 
         message9 =
             words red ("max / quintile 1 = " ++ ((Model.maxCapital state / quintiles.quintile1) |> Model.roundAt2 1))
-                |> moveX (computer.screen.width / 2 - 85)
+                |> moveX (computer.screen.width / 2 - 85 - 64)
                 |> moveY (computer.screen.height / 2 - 260)
 
         messageC1 =
             words blue "Commands"
-                |> moveX (computer.screen.width / 2 - 121)
-                |> moveY (computer.screen.height / 2 - 300)
+                |> moveX (computer.screen.width / 2 - 121 - 62)
+                |> moveY (computer.screen.height / 2 - 320)
 
         messageC2 =
             words blue "p: pause"
-                |> moveX (computer.screen.width / 2 - 131)
-                |> moveY (computer.screen.height / 2 - 320)
+                |> moveX (computer.screen.width / 2 - 131 - 62)
+                |> moveY (computer.screen.height / 2 - 350)
 
         messageC3 =
             words blue "r: run"
-                |> moveX (computer.screen.width / 2 - 140)
-                |> moveY (computer.screen.height / 2 - 340)
+                |> moveX (computer.screen.width / 2 - 140 - 62)
+                |> moveY (computer.screen.height / 2 - 370)
 
         messageC4 =
             words blue "x: reset"
-                |> moveX (computer.screen.width / 2 - 136)
-                |> moveY (computer.screen.height / 2 - 360)
+                |> moveX (computer.screen.width / 2 - 136 - 62)
+                |> moveY (computer.screen.height / 2 - 390)
 
         messageC5 =
             words blue "s: new seed"
+                |> moveX (computer.screen.width / 2 - 122 - 62)
+                |> moveY (computer.screen.height / 2 - 410)
+
+        messageC6 =
+            words blue "a: set transaction amount to 0.5"
                 |> moveX (computer.screen.width / 2 - 122)
-                |> moveY (computer.screen.height / 2 - 380)
+                |> moveY (computer.screen.height / 2 - 440)
+
+        messageC7 =
+            words blue "b: set transaction amount to 1.0"
+                |> moveX (computer.screen.width / 2 - 122)
+                |> moveY (computer.screen.height / 2 - 460)
+
+        messageC8 =
+            words blue "c: set transaction amount to 1.5"
+                |> moveX (computer.screen.width / 2 - 122)
+                |> moveY (computer.screen.height / 2 - 480)
+
+        messageC9 =
+            words blue "d: set transaction amount to 2.0"
+                |> moveX (computer.screen.width / 2 - 122)
+                |> moveY (computer.screen.height / 2 - 500)
 
         quintiles =
             Model.quintiles (state.people |> List.map .capital)
@@ -177,6 +197,10 @@ visualize computer state =
         :: messageC3
         :: messageC4
         :: messageC5
+        :: messageC6
+        :: messageC7
+        :: messageC8
+        :: messageC9
         :: List.indexedMap (personToShape config1.gridSize) state.people
 
 
@@ -197,7 +221,7 @@ personToShape gridSize index person =
 
         radius =
             -- person.capital ^ 3 / 3000
-            person.capital ^ 2.5 / 1000
+            max 1 (person.capital ^ 2.5 / 1000)
     in
     circle c2 radius |> moveX dx |> moveY dy
 
@@ -226,6 +250,46 @@ update computer state =
 
                     state1 =
                         initialState { config1 | seedInteger = newSeedInteger }
+                in
+                { state1 | paused = True }
+
+            else if computer.keyboard.keys == Set.singleton "a" then
+                let
+                    newTransactionAmount =
+                        0.5
+
+                    state1 =
+                        { state | transactionAmount = newTransactionAmount }
+                in
+                { state1 | paused = True }
+
+            else if computer.keyboard.keys == Set.singleton "b" then
+                let
+                    newTransactionAmount =
+                        1.0
+
+                    state1 =
+                        { state | transactionAmount = newTransactionAmount }
+                in
+                { state1 | paused = True }
+
+            else if computer.keyboard.keys == Set.singleton "c" then
+                let
+                    newTransactionAmount =
+                        1.5
+
+                    state1 =
+                        { state | transactionAmount = newTransactionAmount }
+                in
+                { state1 | paused = True }
+
+            else if computer.keyboard.keys == Set.singleton "d" then
+                let
+                    newTransactionAmount =
+                        2.0
+
+                    state1 =
+                        { state | transactionAmount = newTransactionAmount }
                 in
                 { state1 | paused = True }
 
