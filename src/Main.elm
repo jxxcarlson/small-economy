@@ -221,6 +221,19 @@ visualize computer state =
                 |> moveX (computer.screen.width / 2 - 172 - dx2)
                 |> moveY (computer.screen.height / 2 - 610 - dy2)
 
+        messageC15 =
+            let
+                c =
+                    if state.taxRate == 0.2 then
+                        red
+
+                    else
+                        blue
+            in
+            words c "i: tax rate 20%"
+                |> moveX (computer.screen.width / 2 - 172 - dx2)
+                |> moveY (computer.screen.height / 2 - 630 - dy2)
+
         quintiles =
             Model.quintiles (state.people |> List.map .capital)
 
@@ -255,6 +268,7 @@ visualize computer state =
         :: messageC12
         :: messageC13
         :: messageC14
+        :: messageC15
         :: List.indexedMap (personToShape state.gridSize) state.people
         |> group
         |> moveY 10
@@ -346,6 +360,9 @@ update computer state =
 
             else if computer.keyboard.keys == Set.singleton "h" then
                 setTaxRate state 0.16
+
+            else if computer.keyboard.keys == Set.singleton "i" then
+                setTaxRate state 0.2
 
             else if computer.keyboard.keys == Set.singleton "n" then
                 unSetTaxRate state
