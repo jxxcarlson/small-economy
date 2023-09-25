@@ -74,7 +74,7 @@ visualize computer state =
             display computer red "quintile 2" (quintiles.quintile2 |> Model.roundAt2 1) (278 - dx1) (450 - dy1) 83
 
         message8 =
-            display computer red "quintile 1" (quintiles.quintile1 |> Model.roundAt2 1) (277 - dx1) (470 - dy1) 83
+            display computer red "quintile 1" (quintiles.quintile1 |> Model.roundAt2 2 |> String.padRight 6 ' ') (277 - dx1) (470 - dy1) 83
 
         message9 =
             display computer orange "gini" (Model.gini (state.people |> List.map .capital) |> Model.roundAt2 2) (296 - dx1) (500 - dy1) 98
@@ -321,7 +321,7 @@ update computer state =
                     newState_ =
                         initialState { originalConfig | seedInteger = newSeedInteger }
                 in
-                newState_
+                { newState_ | paused = True }
 
             else if computer.keyboard.keys == Set.singleton "a" then
                 setTransactionAmount state 0.5
@@ -365,7 +365,7 @@ setTransactionAmount state newTransactionAmount =
 
 
 setTaxRate state rate =
-    { state | taxRate = rate }
+    { state | taxRate = rate, ubi = True }
 
 
 unSetTaxRate state =
@@ -373,4 +373,4 @@ unSetTaxRate state =
         state1 =
             { state | taxRate = 0 }
     in
-    { state1 | paused = True, ubi = False }
+    { state1 | ubi = False }
