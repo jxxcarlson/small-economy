@@ -12,7 +12,7 @@ main =
 
 initialState : Model.Config -> State
 initialState config =
-    Model.initialState Model.config
+    Model.initialState config
 
 
 view : Computer -> State -> List Shape
@@ -38,12 +38,14 @@ visualize computer state =
             ( 40, 48 )
 
         ( dy1, dy2 ) =
-            ( 180, 90 )
+            ( 200, 90 )
 
         message1 : Shape
         message1 =
-            display computer red "transactions " (String.fromInt state.t) (271 - dx1) (270 - dy1) 83
+            words Playground.blue ("transactions " ++ String.fromInt state.t)
+                |> moveY (-state.gridSize / 2 - 60)
 
+        -- display computer red "transactions " (String.fromInt state.t) (271 - dx1) (270 - dy1) 83
         --words red ("transactions = " ++ String.fromInt state.t)
         --    |> moveX (computer.screen.width / 2 - 86 - 82 - dx)
         --    |> moveY (computer.screen.height / 2 - 20 - dy)
@@ -176,8 +178,8 @@ visualize computer state =
                     else
                         blue
             in
-            words c "e: tax rate = 4%"
-                |> moveX (computer.screen.width / 2 - 172 - dx2)
+            words c "e: tax rate  4%"
+                |> moveX (computer.screen.width / 2 - 177 - dx2)
                 |> moveY (computer.screen.height / 2 - 550 - dy2)
 
         messageC12 =
@@ -189,8 +191,8 @@ visualize computer state =
                     else
                         blue
             in
-            words c "f: tax rate = 8%"
-                |> moveX (computer.screen.width / 2 - 172 - dx2)
+            words c "f: tax rate  8%"
+                |> moveX (computer.screen.width / 2 - 177 - dx2)
                 |> moveY (computer.screen.height / 2 - 570 - dy2)
 
         messageC13 =
@@ -313,14 +315,13 @@ update computer state =
                     newSeedInteger =
                         state.seedInteger + 1
 
-                    state1 =
-                        let
-                            originalConfig =
-                                Model.config
-                        in
+                    originalConfig =
+                        Model.config
+
+                    newState_ =
                         initialState { originalConfig | seedInteger = newSeedInteger }
                 in
-                { state1 | paused = True }
+                newState_
 
             else if computer.keyboard.keys == Set.singleton "a" then
                 setTransactionAmount state 0.5
