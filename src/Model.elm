@@ -3,7 +3,9 @@ module Model exposing
     , Person
     , State
     , average
+    , cdf
     , config
+    , gini
     , initialState
     , listCapital
     , maxCapital
@@ -338,6 +340,39 @@ quintiles xs =
     , quintile4 = sorted |> List.drop m3 |> List.take (m4 - m3) |> average
     , quintile5 = sorted |> List.drop m4 |> List.take (n - m4) |> average
     }
+
+
+cdf : List Float -> Float -> Float
+cdf ps x =
+    let
+        n =
+            List.length ps |> toFloat
+
+        k =
+            List.filter (\p -> p <= x) ps |> List.length |> toFloat
+    in
+    k / n
+
+
+gini : List Float -> Float
+gini xs =
+    let
+        n =
+            List.length xs
+
+        sorted =
+            List.sort xs
+
+        numerator =
+            2.0 * List.sum (List.indexedMap (\k x -> (toFloat k + 1.0) * x) sorted)
+
+        denominator =
+            toFloat n * List.sum sorted
+
+        correction =
+            (toFloat n + 1) / toFloat n
+    in
+    numerator / denominator - correction
 
 
 average : List Float -> Float
