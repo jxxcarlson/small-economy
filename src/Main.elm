@@ -360,19 +360,11 @@ update computer state =
 
 
 setTransactionAmount state newTransactionAmount =
-    let
-        state1 =
-            { state | transactionAmount = newTransactionAmount }
-    in
-    { state1 | paused = True }
+    { state | transactionAmount = newTransactionAmount }
 
 
 setTaxRate state rate =
-    let
-        state1 =
-            { state | taxRate = rate }
-    in
-    { state1 | paused = True, ubi = True }
+    { state | taxRate = rate }
 
 
 unSetTaxRate state =
