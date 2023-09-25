@@ -34,76 +34,73 @@ visualize computer state =
         boundingBox =
             rectangle (rgb 30 30 60) (state.gridSize + 20) (state.gridSize + 20)
 
-        dx =
-            40
+        ( dx1, dx2 ) =
+            ( 40, 48 )
 
-        dy =
-            120
+        ( dy1, dy2 ) =
+            ( 180, 90 )
 
         message1 : Shape
         message1 =
-            display computer "transactions = " (String.fromInt state.t) (258 - dx) (270 - dy) 70
+            display computer red "transactions " (String.fromInt state.t) (271 - dx1) (270 - dy1) 83
 
         --words red ("transactions = " ++ String.fromInt state.t)
         --    |> moveX (computer.screen.width / 2 - 86 - 82 - dx)
         --    |> moveY (computer.screen.height / 2 - 20 - dy)
         message2 =
-            display computer "populaton = " (state.populationSize |> toFloat |> Model.roundAt2 1 |> String.padRight 4 ' ') (265 - dx) (300 - dy) 70
+            display computer red "populaton " (state.populationSize |> toFloat |> Model.roundAt2 1 |> String.padRight 4 ' ') (277 - dx1) (300 - dy1) 84
 
         message2a =
-            display computer "transaction = " (state.transactionAmount |> Model.roundAt2 2) (263 - dx) (320 - dy) 70
+            display computer red "transaction " (state.transactionAmount |> Model.roundAt2 2) (275 - dx1) (320 - dy1) 75
 
         message2b =
-            display computer "initial Capital = " (state.initialCapital |> Model.roundAt2 1) (253 - dx) (340 - dy) 70
+            display computer red "init. Capital " (state.initialCapital |> Model.roundAt2 1) (273 - dx1) (340 - dy1) 75
 
         message3 =
-            display computer "max Capital = " (Model.maxCapital state |> Model.roundAt2 1) (258 - dx) (360 - dy) 70
+            display computer red "max Capital " (Model.maxCapital state |> Model.roundAt2 1) (272 - dx1) (360 - dy1) 75
 
         message4 =
-            display computer "quintile 5 = " (quintiles.quintile5 |> Model.roundAt2 1) (270 - dx) (390 - dy) 60
+            display computer red "quintile 5" (quintiles.quintile5 |> Model.roundAt2 1) (278 - dx1) (390 - dy1) 83
 
         message5 =
-            display computer "quintile 4 = " (quintiles.quintile4 |> Model.roundAt2 1) (270 - dx) (410 - dy) 60
+            display computer red "quintile 4" (quintiles.quintile4 |> Model.roundAt2 1) (278 - dx1) (410 - dy1) 83
 
         message6 =
-            display computer "quintile 3 = " (quintiles.quintile3 |> Model.roundAt2 1) (270 - dx) (430 - dy) 60
+            display computer red "quintile 3" (quintiles.quintile3 |> Model.roundAt2 1) (278 - dx1) (430 - dy1) 83
 
         message7 =
-            display computer "quintile 2 = " (quintiles.quintile2 |> Model.roundAt2 1) (270 - dx) (450 - dy) 60
+            display computer red "quintile 2" (quintiles.quintile2 |> Model.roundAt2 1) (278 - dx1) (450 - dy1) 83
 
         message8 =
-            display computer "quintile 1 = " (quintiles.quintile1 |> Model.roundAt2 1) (270 - dx) (470 - dy) 60
+            display computer red "quintile 1" (quintiles.quintile1 |> Model.roundAt2 1) (277 - dx1) (470 - dy1) 83
 
         message9 =
-            display computer "max / quintile 1 = " ((Model.maxCapital state / quintiles.quintile1) |> Model.roundAt2 1 |> String.padRight 16 ' ') (250 - dx) (500 - dy) 80
+            display computer orange "gini" (Model.gini (state.people |> List.map .capital) |> Model.roundAt2 2) (296 - dx1) (500 - dy1) 98
 
-        --words red ("max / quintile 1 = " ++ ((Model.maxCapital state / quintiles.quintile1) |> Model.roundAt2 1 |> String.padRight 16 ' '))
-        --    |> moveX (computer.screen.width / 2 - 85 - 64 - dx)
-        --    |> moveY (computer.screen.height / 2 - 260 - dy)
         messageC1 =
             words blue "Commands"
-                |> moveX (computer.screen.width / 2 - 121 - 62 - dx)
-                |> moveY (computer.screen.height / 2 - 320 - dy)
+                |> moveX (computer.screen.width / 2 - 121 - 62 - dx2)
+                |> moveY (computer.screen.height / 2 - 320 - dy2)
 
         messageC2 =
             words blue "p: pause"
-                |> moveX (computer.screen.width / 2 - 131 - 62 - dx)
-                |> moveY (computer.screen.height / 2 - 350 - dy)
+                |> moveX (computer.screen.width / 2 - 131 - 62 - dx2)
+                |> moveY (computer.screen.height / 2 - 350 - dy2)
 
         messageC3 =
             words blue "r: run"
-                |> moveX (computer.screen.width / 2 - 140 - 62 - dx)
-                |> moveY (computer.screen.height / 2 - 370 - dy)
+                |> moveX (computer.screen.width / 2 - 140 - 62 - dx2)
+                |> moveY (computer.screen.height / 2 - 370 - dy2)
 
         messageC4 =
             words blue "x: reset"
-                |> moveX (computer.screen.width / 2 - 136 - 62 - dx)
-                |> moveY (computer.screen.height / 2 - 390 - dy)
+                |> moveX (computer.screen.width / 2 - 136 - 62 - dx2)
+                |> moveY (computer.screen.height / 2 - 390 - dy2)
 
         messageC5 =
             words blue "s: new seed"
-                |> moveX (computer.screen.width / 2 - 122 - 62 - dx)
-                |> moveY (computer.screen.height / 2 - 410 - dy)
+                |> moveX (computer.screen.width / 2 - 122 - 62 - dx2)
+                |> moveY (computer.screen.height / 2 - 410 - dy2)
 
         messageC6 =
             let
@@ -115,8 +112,8 @@ visualize computer state =
                         blue
             in
             words c "a: set transaction amount to 0.5"
-                |> moveX (computer.screen.width / 2 - 122 - dx)
-                |> moveY (computer.screen.height / 2 - 440 - dy)
+                |> moveX (computer.screen.width / 2 - 122 - dx2)
+                |> moveY (computer.screen.height / 2 - 440 - dy2)
 
         messageC7 =
             let
@@ -128,8 +125,8 @@ visualize computer state =
                         blue
             in
             words c "b: set transaction amount to 1.0"
-                |> moveX (computer.screen.width / 2 - 122 - dx)
-                |> moveY (computer.screen.height / 2 - 460 - dy)
+                |> moveX (computer.screen.width / 2 - 122 - dx2)
+                |> moveY (computer.screen.height / 2 - 460 - dy2)
 
         messageC8 =
             let
@@ -141,8 +138,8 @@ visualize computer state =
                         blue
             in
             words c "c: set transaction amount to 1.5"
-                |> moveX (computer.screen.width / 2 - 122 - dx)
-                |> moveY (computer.screen.height / 2 - 480 - dy)
+                |> moveX (computer.screen.width / 2 - 122 - dx2)
+                |> moveY (computer.screen.height / 2 - 480 - dy2)
 
         messageC9 =
             let
@@ -154,8 +151,8 @@ visualize computer state =
                         blue
             in
             words c "d: set transaction amount to 2.0"
-                |> moveX (computer.screen.width / 2 - 122 - dx)
-                |> moveY (computer.screen.height / 2 - 500 - dy)
+                |> moveX (computer.screen.width / 2 - 122 - dx2)
+                |> moveY (computer.screen.height / 2 - 500 - dy2)
 
         messageC10 =
             let
@@ -167,8 +164,8 @@ visualize computer state =
                         blue
             in
             words c "n: no taxes"
-                |> moveX (computer.screen.width / 2 - 188 - dx)
-                |> moveY (computer.screen.height / 2 - 530 - dy)
+                |> moveX (computer.screen.width / 2 - 188 - dx2)
+                |> moveY (computer.screen.height / 2 - 530 - dy2)
 
         messageC11 =
             let
@@ -180,8 +177,8 @@ visualize computer state =
                         blue
             in
             words c "e: tax rate = 4%"
-                |> moveX (computer.screen.width / 2 - 172 - dx)
-                |> moveY (computer.screen.height / 2 - 550 - dy)
+                |> moveX (computer.screen.width / 2 - 172 - dx2)
+                |> moveY (computer.screen.height / 2 - 550 - dy2)
 
         messageC12 =
             let
@@ -193,8 +190,8 @@ visualize computer state =
                         blue
             in
             words c "f: tax rate = 8%"
-                |> moveX (computer.screen.width / 2 - 172 - dx)
-                |> moveY (computer.screen.height / 2 - 570 - dy)
+                |> moveX (computer.screen.width / 2 - 172 - dx2)
+                |> moveY (computer.screen.height / 2 - 570 - dy2)
 
         messageC13 =
             let
@@ -206,8 +203,21 @@ visualize computer state =
                         blue
             in
             words c "g: tax rate 12%"
-                |> moveX (computer.screen.width / 2 - 172 - dx)
-                |> moveY (computer.screen.height / 2 - 590 - dy)
+                |> moveX (computer.screen.width / 2 - 172 - dx2)
+                |> moveY (computer.screen.height / 2 - 590 - dy2)
+
+        messageC14 =
+            let
+                c =
+                    if state.taxRate == 0.16 then
+                        red
+
+                    else
+                        blue
+            in
+            words c "h: tax rate 16%"
+                |> moveX (computer.screen.width / 2 - 172 - dx2)
+                |> moveY (computer.screen.height / 2 - 610 - dy2)
 
         quintiles =
             Model.quintiles (state.people |> List.map .capital)
@@ -242,16 +252,17 @@ visualize computer state =
         :: messageC11
         :: messageC12
         :: messageC13
+        :: messageC14
         :: List.indexedMap (personToShape state.gridSize) state.people
         |> group
         |> moveY 10
 
 
-display computer str1 str2 dx dy deltaX =
-    [ words red str1
+display computer color str1 str2 dx dy deltaX =
+    [ words color str1
         |> moveX (computer.screen.width / 2 - dx)
         |> moveY (computer.screen.height / 2 - dy)
-    , words red str2
+    , words color str2
         |> moveX (computer.screen.width / 2 - dx + deltaX)
         |> moveY (computer.screen.height / 2 - dy)
     ]
@@ -331,6 +342,9 @@ update computer state =
 
             else if computer.keyboard.keys == Set.singleton "g" then
                 setTaxRate state 0.12
+
+            else if computer.keyboard.keys == Set.singleton "h" then
+                setTaxRate state 0.16
 
             else if computer.keyboard.keys == Set.singleton "n" then
                 unSetTaxRate state
