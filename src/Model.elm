@@ -4,8 +4,8 @@ module Model exposing
     , State
     , average
     , cdf
+    , computeGini
     , config
-    , gini
     , initialState
     , listCapital
     , maxCapital
@@ -88,6 +88,10 @@ type alias State =
     , transactionAmount : Float
     , initialCapital : Float
     , gridSize : Float
+    , quintiles : Quintiles
+    , giniIndex : Float
+    , q5toq2 : Float
+    , q5toq1 : Float
 
     --
     , ubi : Bool
@@ -99,6 +103,10 @@ type alias State =
     , t : Int
     , paused : Bool
     }
+
+
+type alias Quintiles =
+    { quintile1 : Float, quintile2 : Float, quintile3 : Float, quintile4 : Float, quintile5 : Float }
 
 
 nextState : State -> State
@@ -129,15 +137,44 @@ nextState state =
 
                 _ ->
                     people
-    in
-    { state
-        | seed = seed
-        , people =
+
+        newPeople =
             if state.t > 1 && state.ubi && modBy state.taxationInterval state.t == 0 then
                 runUBI state
 
             else
                 updatePeople state.people i j
+
+        newGiniIndex =
+            computeGini (newPeople |> List.map .capital)
+
+        nQ =
+            quintiles (listCapital newPeople |> List.map Tuple.second)
+
+        mu =
+            0.01
+
+        averageQuintiles =
+            { quintile1 = mu * nQ.quintile1 + (1 - mu) * state.quintiles.quintile1
+            , quintile2 = mu * nQ.quintile2 + (1 - mu) * state.quintiles.quintile2
+            , quintile3 = mu * nQ.quintile3 + (1 - mu) * state.quintiles.quintile4
+            , quintile4 = mu * nQ.quintile4 + (1 - mu) * state.quintiles.quintile4
+            , quintile5 = mu * nQ.quintile5 + (1 - mu) * state.quintiles.quintile5
+            }
+
+        q5toq2 =
+            mu * (averageQuintiles.quintile5 / averageQuintiles.quintile2) + (1 - mu) * state.q5toq2
+
+        q5toq1 =
+            mu * (averageQuintiles.quintile5 / averageQuintiles.quintile1) + (1 - mu) * state.q5toq1
+    in
+    { state
+        | seed = seed
+        , people = newPeople
+        , quintiles = averageQuintiles
+        , giniIndex = mu * newGiniIndex + (1 - mu) * state.giniIndex
+        , q5toq2 = q5toq2
+        , q5toq1 = q5toq1
         , t = state.t + 1
     }
 
@@ -189,6 +226,10 @@ initialState config_ =
     , initialCapital = config_.initialCapital
     , transactionAmount = config_.transactionAmount
     , gridSize = config_.gridSize
+    , quintiles = quintiles (listCapital people |> List.map Tuple.second)
+    , giniIndex = computeGini (people |> List.map .capital)
+    , q5toq2 = 1
+    , q5toq1 = 1
     , t = 0
     , paused = False
     , ubi = config_.ubi
@@ -313,7 +354,7 @@ slice fraction1 fraction2 xs =
     sorted |> List.take m2 |> List.drop m1
 
 
-quintiles : List Float -> { quintile1 : Float, quintile2 : Float, quintile3 : Float, quintile4 : Float, quintile5 : Float }
+quintiles : List Float -> Quintiles
 quintiles xs =
     let
         sorted =
@@ -354,8 +395,8 @@ cdf ps x =
     k / n
 
 
-gini : List Float -> Float
-gini xs =
+computeGini : List Float -> Float
+computeGini xs =
     let
         n =
             List.length xs

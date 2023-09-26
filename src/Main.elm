@@ -76,8 +76,14 @@ visualize computer state =
         message8 =
             display computer red "quintile 1" (quintiles.quintile1 |> Model.roundAt2 2 |> String.padRight 6 ' ') (277 - dx1) (470 - dy1) 83
 
+        message9b =
+            display computer orange "q5/q1" (state.q5toq1 |> Model.roundAt2 1) (288 - dx1) (510 - dy1) 88
+
+        message9c =
+            display computer orange "q5/q2" (state.q5toq2 |> Model.roundAt2 1) (288 - dx1) (530 - dy1) 88
+
         message9 =
-            display computer orange "gini" (Model.gini (state.people |> List.map .capital) |> Model.roundAt2 2) (296 - dx1) (500 - dy1) 98
+            display computer orange "gini" (state.giniIndex |> Model.roundAt2 2) (296 - dx1) (550 - dy1) 98
 
         messageC1 =
             words blue "Commands"
@@ -235,7 +241,7 @@ visualize computer state =
                 |> moveY (computer.screen.height / 2 - 630 - dy2)
 
         quintiles =
-            Model.quintiles (state.people |> List.map .capital)
+            state.quintiles
 
         message10 =
             words Playground.blue "Random Exchange Model"
@@ -253,6 +259,8 @@ visualize computer state =
         :: message7
         :: message8
         :: message9
+        :: message9b
+        :: message9c
         :: message10
         :: messageC1
         :: messageC2
