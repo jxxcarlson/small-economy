@@ -1,6 +1,6 @@
 # small-economy
 
-A simulation of the "random exchange model" written using [Elm Playground](https://package.elm-lang.org/packages/evancz/elm-playground/latest/)
+A simulation of the "random exchange model" written using [Elm Playground](https://package.elm-lang.org/packages/evancz/elm-playground/latest/).
 
 Everyones starts with a fixed amount of wealth W.  
 At each tick of the clock, two players are selected at random.  
