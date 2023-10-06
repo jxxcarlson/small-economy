@@ -50,44 +50,80 @@ visualize computer state =
         --    |> moveX (computer.screen.width / 2 - 86 - 82 - dx)
         --    |> moveY (computer.screen.height / 2 - 20 - dy)
         message2 =
-            display computer red "populaton " (state.populationSize |> toFloat |> Model.roundAt2 1 |> String.padRight 4 ' ') (277 - dx1) (300 - dy1) 84
+            display2 computer red "population " (state.populationSize |> String.fromInt |> String.padRight 4 ' ') (275 - dx1) (280 - dy1) 76
 
         message2a =
-            display computer red "transaction " (state.transactionAmount |> Model.roundAt2 2) (275 - dx1) (320 - dy1) 75
+            display2 computer red "transaction " (state.transactionAmount |> Model.roundAt2 2) (275 - dx1) (300 - dy1) 75
 
         message2b =
-            display computer red "init. Capital " (state.initialCapital |> Model.roundAt2 1) (273 - dx1) (340 - dy1) 75
+            display2 computer red "init. Capital " (state.initialCapital |> Model.roundAt2 1) (273 - dx1) (320 - dy1) 75
 
         message3 =
-            display computer red "max Capital " (Model.maxCapital state |> Model.roundAt2 1) (272 - dx1) (360 - dy1) 75
+            display2 computer red "max Capital " (Model.maxCapital state |> Model.roundAt2 1) (272 - dx1) (340 - dy1) 75
+
+        message3b =
+            display3b computer orange "$$ " "$/c" "%" (185 - dx1) (380 - dy1) 52
 
         message4 =
-            display computer red "quintile 5" (quintiles.quintile5 |> Model.roundAt2 1) (278 - dx1) (390 - dy1) 83
+            displayData computer
+                "quintile 5"
+                quintiles.quintile5
+                red
+                (278 - dx1)
+                (400 - dy1)
+                83
 
         message5 =
-            display computer red "quintile 4" (quintiles.quintile4 |> Model.roundAt2 1) (278 - dx1) (410 - dy1) 83
+            displayData computer
+                "quintile 4"
+                quintiles.quintile4
+                red
+                (278 - dx1)
+                (420 - dy1)
+                83
 
         message6 =
-            display computer red "quintile 3" (quintiles.quintile3 |> Model.roundAt2 1) (278 - dx1) (430 - dy1) 83
+            displayData computer
+                "quintile 3"
+                quintiles.quintile3
+                red
+                (278 - dx1)
+                (440 - dy1)
+                83
 
         message7 =
-            display computer red "quintile 2" (quintiles.quintile2 |> Model.roundAt2 1) (278 - dx1) (450 - dy1) 83
+            displayData computer
+                "quintile 2"
+                quintiles.quintile2
+                red
+                (278 - dx1)
+                (460 - dy1)
+                83
 
         message8 =
-            display computer red "quintile 1" (quintiles.quintile1 |> Model.roundAt2 2 |> String.padRight 6 ' ') (277 - dx1) (470 - dy1) 83
+            displayData computer
+                "quintile 1"
+                quintiles.quintile1
+                red
+                (277 - dx1)
+                (480 - dy1)
+                83
 
         message9b =
-            display computer orange "q5/q1" (state.q5toq1 |> Model.roundAt2 1) (288 - dx1) (510 - dy1) 88
+            display2 computer orange "q5/q1" (state.q5toq1 |> Model.roundAt2 1) (288 - dx1) (510 - dy1) 88
 
         message9c =
-            display computer orange "q5/q2" (state.q5toq2 |> Model.roundAt2 1) (288 - dx1) (530 - dy1) 88
+            display2 computer orange "q5/q2" (state.q5toq2 |> Model.roundAt2 1) (288 - dx1) (530 - dy1) 88
 
         message9 =
-            display computer orange "gini" (state.giniIndex |> Model.roundAt2 2) (296 - dx1) (550 - dy1) 98
+            display2 computer orange "gini" (state.giniIndex |> Model.roundAt2 2) (296 - dx1) (550 - dy1) 98
+
+        message9d =
+            display2 computer orange "entropy" (state.entropy |> Model.roundAt2 2) (284 - dx1) (570 - dy1) 85
 
         messageC1 =
-            words blue "Commands"
-                |> moveX (computer.screen.width / 2 - 121 - 62 - dx2)
+            words blue "Commands (press one key)"
+                |> moveX (computer.screen.width / 2 - 70 - 62 - dx2)
                 |> moveY (computer.screen.height / 2 - 320 - dy2)
 
         messageC2 =
@@ -253,12 +289,14 @@ visualize computer state =
         :: message2a
         :: message2b
         :: message3
+        :: message3b
         :: message4
         :: message5
         :: message6
         :: message7
         :: message8
         :: message9
+        --:: message9d
         :: message9b
         :: message9c
         :: message10
@@ -277,12 +315,66 @@ visualize computer state =
         :: messageC13
         :: messageC14
         :: messageC15
+        :: displayLeft computer blue "Rules of the game" 0 0
+        :: displayLeft computer blue "----------------------" 0 20
+        :: displayLeft computer blue "200 people, each with $10" 23 40
+        :: displayLeft computer blue "At each move, two players" 23 70
+        :: displayLeft computer blue "are selected at random" 9 90
+        :: displayLeft computer blue "Player A transfers x$" 4 120
+        :: displayLeft computer blue "to player B unless he is broke." 34 140
+        :: displayLeft computer blue "x is the transaction amount." 24 160
+        :: displayLeft computer blue "Initial tax rate is 0%" 0 190
+        :: displayLeft computer blue "Taxes are collected every" 15 210
+        :: displayLeft computer blue "1000 moves. The tax revenue" 26 230
+        :: displayLeft computer blue "is split evenly among all players." 40 250
+        :: displayLeft computer blue "Gini coefficient is a measure of " 35 300
+        :: displayLeft computer blue "inequality.  Gini = 0 is perfect " 28 320
+        :: displayLeft computer blue "equality: everyone has the same " 36 340
+        :: displayLeft computer blue "amount of money. Gini = 1 is perfect " 52 360
+        :: displayLeft computer blue "inequality: one player has it all. " 34 380
+        :: displayLeft2 computer blue "Gini coefficients (circa 2019)" 62 422
+        :: displayLeft2 computer blue "-----------------------------------" 62 435
+        :: displayLeft2 computer blue "U.S. 41.5" 0 510
+        :: displayLeft2 computer blue "Germany 31.7" 14 570
+        :: displayLeft2 computer blue "South Africa 63" 20 450
+        :: displayLeft2 computer blue "Canada 33.3" 9 530
+        :: displayLeft2 computer blue "Mexico 45.4" 9 490
+        :: displayLeft2 computer blue "Brazil 48.9" 4 470
+        :: displayLeft2 computer blue "Denmark 27.7" 14 610
+        :: displayLeft2 computer blue "Japan 32.9" 4 550
+        :: displayLeft2 computer blue "S. Korea 31.4" 12 590
         :: List.indexedMap (personToShape state.gridSize) state.people
         |> group
         |> moveY 10
 
 
-display computer color str1 str2 dx dy deltaX =
+displayLeft : Computer -> Color -> String -> Float -> Float -> Shape
+displayLeft computer color str dx dy =
+    [ words color str
+        |> moveX (-computer.screen.width / 2 + 100 + dx)
+        |> moveY (computer.screen.height / 2 - 135 - dy + gdy)
+    ]
+        |> group
+
+
+gdx =
+    -36
+
+
+gdy =
+    45
+
+
+displayLeft2 : Computer -> Color -> String -> Float -> Float -> Shape
+displayLeft2 computer color str dx dy =
+    [ words color str
+        |> moveX (-computer.screen.width / 2 + 100 + dx + gdx)
+        |> moveY (computer.screen.height / 2 - 135 - dy + gdy)
+    ]
+        |> group
+
+
+display2 computer color str1 str2 dx dy deltaX =
     [ words color str1
         |> moveX (computer.screen.width / 2 - dx)
         |> moveY (computer.screen.height / 2 - dy)
@@ -291,6 +383,63 @@ display computer color str1 str2 dx dy deltaX =
         |> moveY (computer.screen.height / 2 - dy)
     ]
         |> group
+
+
+display3 computer color str1 str2 str3 dx dy deltaX =
+    [ words color str1
+        |> moveX (computer.screen.width / 2 - dx)
+        |> moveY (computer.screen.height / 2 - dy)
+    , words color str2
+        |> moveX (computer.screen.width / 2 - dx + deltaX)
+        |> moveY (computer.screen.height / 2 - dy)
+    , words color str3
+        |> moveX (computer.screen.width / 2 - dx + 1.7 * deltaX)
+        |> moveY (computer.screen.height / 2 - dy)
+    ]
+        |> group
+
+
+display3b computer color str1 str2 str3 dx dy deltaX =
+    [ words color str1
+        |> moveX (computer.screen.width / 2 - dx)
+        |> moveY (computer.screen.height / 2 - dy)
+    , words color str2
+        |> moveX (computer.screen.width / 2 - dx + deltaX)
+        |> moveY (computer.screen.height / 2 - dy)
+    , words color str3
+        |> moveX (computer.screen.width / 2 - dx + 1.82 * deltaX)
+        |> moveY (computer.screen.height / 2 - dy)
+    ]
+        |> group
+
+
+display4 computer color str1 str2 str3 str4 dx dy deltaX =
+    [ words color str1
+        |> moveX (computer.screen.width / 2 - dx)
+        |> moveY (computer.screen.height / 2 - dy)
+    , words color str2
+        |> moveX (computer.screen.width / 2 - dx + deltaX)
+        |> moveY (computer.screen.height / 2 - dy)
+    , words color str3
+        |> moveX (computer.screen.width / 2 - dx + 1.7 * deltaX)
+        |> moveY (computer.screen.height / 2 - dy)
+    , words color str4
+        |> moveX (computer.screen.width / 2 - dx + 2.2 * deltaX)
+        |> moveY (computer.screen.height / 2 - dy)
+    ]
+        |> group
+
+
+displayData computer name data color dx dy deltaX =
+    display4 computer
+        color
+        name
+        (data.capital |> Model.roundAt 1 |> String.fromFloat)
+        (data.averageCapital |> Model.roundAt 1 |> String.fromFloat)
+        (100.0 * data.capital / 2000.0 |> Model.roundAt 1 |> String.fromFloat)
+        dx
+        dy
+        deltaX
 
 
 personToShape : Float -> Int -> Model.Person -> Shape
